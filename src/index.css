@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+@import "tailwindcss";
+
+*, *::before, *::after{
+    box-sizing: inherit;
+}
+
+:root{
+    --bgGrey: #808080;
+}
+
+body{
+    box-sizing: border-box;
+    min-height: 100vh;
+    background-color: var(--bgGrey);
+}
+
+.bgContainer{
+    background: linear-gradient(to right bottom,rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 50%, rgba(237, 221, 83, 1) 100%);
+}
+
+
+
+

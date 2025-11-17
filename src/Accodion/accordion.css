@@ -1,0 +1,18 @@
+/* *, *::before, *::after{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+} */
+
+.accordion-icon {
+  transform: translateY(-2px) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+}
+
+.accordion-icon-revert {
+  transform: translateY(2px) rotate(-135deg);
+}
