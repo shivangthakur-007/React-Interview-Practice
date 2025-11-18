@@ -9,9 +9,9 @@ const Fetch = () => {
     wind: "4",
     weatherCondition: "clear",
   });
-
   const [search, setSearch] = useState("");
-  const [error, setError]= useState(null);
+  const [error, setError] = useState(null);
+  const [searchCityList, setSearchCityList] = useState([]);
 
   async function fetchData() {
     try {
@@ -23,22 +23,28 @@ const Fetch = () => {
   }
 
   function handleClick() {
-    setError(null)
+    setError(null);
     const foundCity = data.find(
       (city) => city.name.toLowerCase() === search.toLowerCase()
     );
     if (foundCity) {
-      setCurrentCity({
-        name: foundCity.name,
-        temperature: foundCity.main?.temp,
-        humidity: foundCity.main?.humidity,
-        wind: foundCity.wind?.speed,
-        weatherCondition: foundCity.weathercondition,
-      });
-    }else{
-      setError('City Not found')
+      updateCityData(foundCity);
+    } else {
+      setError("City Not found");
     }
     setSearch("");
+    setSearchCityList([]);
+  }
+
+  function updateCityData(foundCity) {
+    setError(null);
+    setCurrentCity({
+      name: foundCity.name,
+      temperature: foundCity.main?.temp,
+      humidity: foundCity.main?.humidity,
+      wind: foundCity.wind?.speed,
+      weatherCondition: foundCity.weathercondition,
+    });
   }
 
   let citySrc = "/assets/brightSun.png";
@@ -67,10 +73,37 @@ const Fetch = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (!search || data.length === 0) {
+      if (search.length === 0) {
+        setSearchCityList([]);
+      }
+      return;
+    }
+    // debounce use
+    setError(null);
+
+    const timeId = setTimeout(() => {
+      let matchCity = data.filter((city) =>
+        city.name.toLowerCase().includes(search.trim().toLowerCase())
+      );
+      if (matchCity.length > 0) {
+        const listCity = matchCity.map((city) => city.name);
+        setSearchCityList(listCity);
+      } else {
+        console.log(`this is not working.`);
+        setSearchCityList([]);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timeId);
+    };
+  }, [search, data]);
   return (
     <div className="relative h-screen">
-      <div className="w-[450px] max-h-[600px] min-h-[400px] bgContainer text-white absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl py-2 overflow-y-hidden flex flex-col items-center border-transparent hover:border-white border-1">
-        <div className="flex justify-between py-2 w-[85%] items-center">
+      <div className="w-[450px] h-[500px] bgContainer text-white absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl py-2 overflow-y-hidden flex flex-col items-center border-transparent hover:border-white border-1">
+        <div className="flex justify-between py-2 w-[85%] items-center relative">
           <input
             type="search"
             placeholder="Enter City Name"
@@ -91,6 +124,24 @@ const Fetch = () => {
               className="invert-30"
             />
           </button>
+          {search && searchCityList.length > 0 && (
+            <ul
+              className="absolute top-[60px] left-0 bg-white rounded-b-2xl p-2 w-[85%] text-black z-10 shadow-lg"
+            >
+              {searchCityList.map((searchCity) => (
+                <li
+                  key={searchCity}
+                  className="cursor-pointer p-2 hover:bg-gray-200 border-b border-gray-100 last:border-b-0"
+                  onClick={() => {
+                    setSearch(searchCity);
+                    setSearchCityList([]);
+                  }}
+                >
+                  {searchCity}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         {error ? (
           <p className="text-red-800 mt-4 text-4xl font-bold">{error}</p>
@@ -101,8 +152,7 @@ const Fetch = () => {
                 src={`${citySrc}` || "/assets/brightsun.png"}
                 alt="weather"
                 title="weather"
-                width="180px"
-                className="rounded-xl"
+                className="rounded-xl w-full max-w-[180px] aspect-square"
               />
               <h3 className="text-2xl font-medium mt-2">
                 {currentCity?.temperature} ℃
